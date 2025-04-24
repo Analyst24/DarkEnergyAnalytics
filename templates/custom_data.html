@@ -1,0 +1,310 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="mb-4">
+    <ul class="nav nav-tabs" style="border-bottom-color: var(--border-color);">
+        <li class="nav-item">
+            <a class="nav-link data-entry-toggle active" href="#" data-target="upload" style="color: var(--text-primary); background-color: var(--bg-secondary); border-color: var(--border-color);">
+                <i class="fas fa-file-upload me-2"></i>Upload CSV
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link data-entry-toggle" href="#" data-target="manual" style="color: var(--text-secondary); background-color: var(--bg-primary); border-color: var(--border-color);">
+                <i class="fas fa-keyboard me-2"></i>Manual Entry
+            </a>
+        </li>
+    </ul>
+</div>
+
+<!-- Upload CSV Section -->
+<div id="upload-section" class="card">
+    <div class="card-header">
+        <h3>Upload Custom Energy Data</h3>
+    </div>
+    <div class="card-body">
+        <p>Upload your own energy consumption data in CSV format. The file should contain columns for timestamp, energy consumption, and optionally temperature, humidity, and occupancy.</p>
+        
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Required CSV format:</strong> The first row should contain column headers. At minimum, include <code>timestamp</code> and <code>energy_consumption</code> columns.
+            <br>
+            <strong>Example:</strong> <code>timestamp,energy_consumption,temperature,humidity,occupancy</code>
+            <br>
+            <strong>Date format:</strong> <code>YYYY-MM-DD HH:MM:SS</code> (e.g., 2023-01-01 13:30:00)
+        </div>
+        
+        <form method="POST" action="{{ url_for('custom_data') }}" enctype="multipart/form-data" class="mt-4">
+            {{ upload_form.hidden_tag() }}
+            
+            <div class="form-group">
+                <label for="upload_form-name">{{ upload_form.name.label }}</label>
+                {{ upload_form.name(class="form-control", id="upload_form-name", placeholder="Enter a name for this dataset") }}
+                {% if upload_form.name.errors %}
+                    <div class="text-danger">
+                        {% for error in upload_form.name.errors %}
+                            <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group mt-3">
+                <label for="upload_form-description">{{ upload_form.description.label }}</label>
+                {{ upload_form.description(class="form-control", id="upload_form-description", placeholder="Optional description for this dataset") }}
+            </div>
+            
+            <div class="form-group mt-3">
+                <label>{{ upload_form.data_file.label }}</label>
+                <div class="file-input-container">
+                    <div class="file-input-label">
+                        <i class="fas fa-upload me-2"></i>Select CSV File
+                    </div>
+                    {{ upload_form.data_file(id="upload_form-data_file") }}
+                    <span class="file-name ms-2">No file selected</span>
+                </div>
+                {% if upload_form.data_file.errors %}
+                    <div class="text-danger">
+                        {% for error in upload_form.data_file.errors %}
+                            <small>{{ error }}</small>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div class="form-group mt-4">
+                {{ upload_form.submit(class="btn btn-primary") }}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary ms-2">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Manual Entry Section -->
+<div id="manual-section" class="card" style="display: none;">
+    <div class="card-header">
+        <h3>Manual Data Entry</h3>
+    </div>
+    <div class="card-body">
+        <p>Manually enter energy consumption data points one at a time. You can add them to an existing dataset or create a new one.</p>
+        
+        <form method="POST" action="{{ url_for('custom_data') }}" class="mt-4">
+            {{ manual_form.hidden_tag() }}
+            
+            <div class="form-group">
+                <label for="dataset_id">Dataset</label>
+                <select name="dataset_id" id="dataset_id" class="form-control">
+                    <option value="new">Create New Dataset</option>
+                    {% for dataset in datasets %}
+                        {% if not dataset.is_sample %}
+                            <option value="{{ dataset.id }}">{{ dataset.name }}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="timestamp">{{ manual_form.timestamp.label }}</label>
+                        {{ manual_form.timestamp(class="form-control", id="timestamp", type="date") }}
+                        {% if manual_form.timestamp.errors %}
+                            <div class="text-danger">
+                                {% for error in manual_form.timestamp.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="energy_consumption">{{ manual_form.energy_consumption.label }}</label>
+                        {{ manual_form.energy_consumption(class="form-control", id="energy_consumption", placeholder="e.g., 12.5") }}
+                        {% if manual_form.energy_consumption.errors %}
+                            <div class="text-danger">
+                                {% for error in manual_form.energy_consumption.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="temperature">{{ manual_form.temperature.label }} (Optional)</label>
+                        {{ manual_form.temperature(class="form-control", id="temperature", placeholder="e.g., 22.5") }}
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="humidity">{{ manual_form.humidity.label }} (Optional)</label>
+                        {{ manual_form.humidity(class="form-control", id="humidity", placeholder="e.g., 45") }}
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="occupancy">{{ manual_form.occupancy.label }} (Optional)</label>
+                        {{ manual_form.occupancy(class="form-control", id="occupancy", placeholder="e.g., 10") }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group mt-4">
+                {{ manual_form.submit(class="btn btn-primary") }}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary ms-2">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- User Datasets Section -->
+<div class="card mt-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3>Your Custom Datasets</h3>
+        <span class="badge bg-primary" style="background-color: var(--accent-primary) !important;">{{ datasets|length }} Datasets</span>
+    </div>
+    <div class="card-body p-0">
+        {% if datasets %}
+            <div class="table-container">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Data Points</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for dataset in datasets %}
+                            {% if not dataset.is_sample %}
+                                <tr>
+                                    <td>{{ dataset.name }}</td>
+                                    <td>{{ dataset.description or 'No description' }}</td>
+                                    <td>{{ dataset.data_points|length }}</td>
+                                    <td>{{ dataset.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('view_anomalies') }}" class="btn btn-sm btn-primary">Analyze</a>
+                                    </td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="p-4 text-center">
+                <p>You haven't added any custom datasets yet.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- CSV Format Guide -->
+<div class="card mt-4">
+    <div class="card-header">
+        <h3>CSV Format Guide</h3>
+    </div>
+    <div class="card-body">
+        <h4>Sample CSV Structure</h4>
+        <pre style="background-color: var(--bg-tertiary); padding: 15px; border-radius: 5px; color: var(--text-primary);">timestamp,energy_consumption,temperature,humidity,occupancy
+2023-01-01 00:00:00,12.5,21.2,45,0
+2023-01-01 01:00:00,11.8,20.8,44,0
+2023-01-01 02:00:00,10.5,20.5,45,0
+2023-01-01 08:00:00,15.2,22.5,48,10
+2023-01-01 09:00:00,18.7,23.1,50,15</pre>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h4>Required Columns</h4>
+                <ul>
+                    <li><strong>timestamp</strong> - Date and time (YYYY-MM-DD HH:MM:SS)</li>
+                    <li><strong>energy_consumption</strong> - Energy usage in kWh</li>
+                </ul>
+            </div>
+            
+            <div class="col-md-6">
+                <h4>Optional Columns</h4>
+                <ul>
+                    <li><strong>temperature</strong> - Temperature in °C</li>
+                    <li><strong>humidity</strong> - Relative humidity in %</li>
+                    <li><strong>occupancy</strong> - Number of occupants</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="alert alert-warning mt-3">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Note:</strong> Ensure your data is properly formatted. Missing values should be left empty rather than using placeholders like "N/A" or "null".
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set default date for manual entry
+        const timestampInput = document.getElementById('timestamp');
+        if (timestampInput && !timestampInput.value) {
+            const today = new Date();
+            timestampInput.value = today.toISOString().split('T')[0];
+        }
+        
+        // File input handling
+        const fileInput = document.getElementById('upload_form-data_file');
+        const fileNameDisplay = document.querySelector('.file-name');
+        
+        if (fileInput && fileNameDisplay) {
+            fileInput.addEventListener('change', function() {
+                if (this.files.length > 0) {
+                    fileNameDisplay.textContent = this.files[0].name;
+                    fileNameDisplay.style.color = 'var(--accent-primary)';
+                } else {
+                    fileNameDisplay.textContent = 'No file selected';
+                    fileNameDisplay.style.color = 'var(--text-secondary)';
+                }
+            });
+        }
+        
+        // Toggle between upload and manual sections
+        const toggleButtons = document.querySelectorAll('.data-entry-toggle');
+        const uploadSection = document.getElementById('upload-section');
+        const manualSection = document.getElementById('manual-section');
+        
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = this.getAttribute('data-target');
+                
+                // Update active tab
+                toggleButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.style.color = 'var(--text-secondary)';
+                    btn.style.backgroundColor = 'var(--bg-primary)';
+                });
+                
+                this.classList.add('active');
+                this.style.color = 'var(--text-primary)';
+                this.style.backgroundColor = 'var(--bg-secondary)';
+                
+                // Show/hide relevant section
+                if (target === 'upload') {
+                    uploadSection.style.display = 'block';
+                    manualSection.style.display = 'none';
+                } else {
+                    uploadSection.style.display = 'none';
+                    manualSection.style.display = 'block';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

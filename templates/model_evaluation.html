@@ -1,0 +1,290 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h3>Model Performance Evaluation</h3>
+    </div>
+    <div class="card-body">
+        <p>This page shows the performance metrics of anomaly detection models across your datasets. Metrics include accuracy, precision, recall, and F1 score.</p>
+        
+        {% if not evaluations_by_dataset %}
+            <div class="alert alert-info mt-4">
+                <i class="fas fa-info-circle me-2"></i>
+                No model evaluations available yet. Run anomaly detection on a dataset to see evaluation metrics.
+                <a href="{{ url_for('view_anomalies') }}" class="alert-link">Detect anomalies now</a>.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if evaluations_by_dataset %}
+    <!-- Model Comparison Across Datasets -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Algorithm Performance Comparison</h3>
+        </div>
+        <div class="card-body">
+            <div class="chart-container" style="height: 400px;">
+                <canvas id="algorithm-comparison-chart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance by Dataset -->
+    {% for dataset_id, data in evaluations_by_dataset.items() %}
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3>{{ data.dataset.name }}</h3>
+                <span class="badge" style="background-color: var(--bg-tertiary); color: var(--text-primary);">
+                    {{ data.evaluations|length }} Models
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-5">
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="radar-chart-{{ dataset_id }}"></canvas>
+                        </div>
+                    </div>
+                    <div class="col-lg-7">
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Algorithm</th>
+                                        <th>Accuracy</th>
+                                        <th>Precision</th>
+                                        <th>Recall</th>
+                                        <th>F1 Score</th>
+                                        <th>Created</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for eval in data.evaluations %}
+                                        <tr>
+                                            <td>
+                                                {% if eval.algorithm == 'isolation_forest' %}
+                                                    <span class="algorithm-name"><i class="fas fa-tree me-1 text-success"></i> Isolation Forest</span>
+                                                {% elif eval.algorithm == 'one_class_svm' %}
+                                                    <span class="algorithm-name"><i class="fas fa-project-diagram me-1 text-warning"></i> One-Class SVM</span>
+                                                {% elif eval.algorithm == 'local_outlier_factor' %}
+                                                    <span class="algorithm-name"><i class="fas fa-user-friends me-1 text-primary"></i> Local Outlier Factor</span>
+                                                {% elif eval.algorithm == 'auto_encoder' %}
+                                                    <span class="algorithm-name"><i class="fas fa-brain me-1 text-danger"></i> Autoencoder</span>
+                                                {% else %}
+                                                    <span class="algorithm-name">{{ eval.algorithm }}</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ "%.3f"|format(eval.accuracy) if eval.accuracy else 'N/A' }}</td>
+                                            <td>{{ "%.3f"|format(eval.precision) if eval.precision else 'N/A' }}</td>
+                                            <td>{{ "%.3f"|format(eval.recall) if eval.recall else 'N/A' }}</td>
+                                            <td>{{ "%.3f"|format(eval.f1_score) if eval.f1_score else 'N/A' }}</td>
+                                            <td>{{ eval.created_at.strftime('%Y-%m-%d') }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+    <!-- Metrics Explanation -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Understanding Performance Metrics</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="metric-explanation mb-3">
+                        <h4><i class="fas fa-bullseye me-2 text-primary"></i> Accuracy</h4>
+                        <p>The proportion of correct predictions (both true positives and true negatives) among the total number of cases examined.</p>
+                        <div class="formula p-2 mb-2" style="background-color: var(--bg-tertiary); border-radius: 5px;">
+                            <code>Accuracy = (TP + TN) / (TP + TN + FP + FN)</code>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-explanation mb-3">
+                        <h4><i class="fas fa-crosshairs me-2 text-success"></i> Precision</h4>
+                        <p>The proportion of positive identifications that were actually correct. High precision means few false positives.</p>
+                        <div class="formula p-2 mb-2" style="background-color: var(--bg-tertiary); border-radius: 5px;">
+                            <code>Precision = TP / (TP + FP)</code>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="metric-explanation mb-3">
+                        <h4><i class="fas fa-search me-2 text-warning"></i> Recall (Sensitivity)</h4>
+                        <p>The proportion of actual positives that were identified correctly. High recall means few false negatives.</p>
+                        <div class="formula p-2 mb-2" style="background-color: var(--bg-tertiary); border-radius: 5px;">
+                            <code>Recall = TP / (TP + FN)</code>
+                        </div>
+                    </div>
+                    
+                    <div class="metric-explanation mb-3">
+                        <h4><i class="fas fa-balance-scale me-2 text-danger"></i> F1 Score</h4>
+                        <p>The harmonic mean of precision and recall. Provides a balance between precision and recall.</p>
+                        <div class="formula p-2 mb-2" style="background-color: var(--bg-tertiary); border-radius: 5px;">
+                            <code>F1 Score = 2 * (Precision * Recall) / (Precision + Recall)</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-3">
+                <p><strong>Note:</strong> For anomaly detection, these metrics are approximations since we often don't have ground truth labels for anomalies in real-world data.</p>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if evaluations_by_dataset %}
+            // Create radar charts for each dataset
+            {% for dataset_id, data in evaluations_by_dataset.items() %}
+                // Get the best evaluation (highest F1 score or most recent)
+                const evaluations = {{ data.evaluations|tojson }};
+                let bestEval = evaluations[0];
+                for (const eval of evaluations) {
+                    if (eval.f1_score > bestEval.f1_score) {
+                        bestEval = eval;
+                    }
+                }
+                
+                // Create radar chart
+                createModelEvaluationChart('radar-chart-{{ dataset_id }}', {
+                    accuracy: bestEval.accuracy || 0,
+                    precision: bestEval.precision || 0,
+                    recall: bestEval.recall || 0,
+                    f1_score: bestEval.f1_score || 0
+                });
+            {% endfor %}
+            
+            // Create algorithm comparison chart
+            const comparisonCtx = document.getElementById('algorithm-comparison-chart').getContext('2d');
+            
+            // Prepare data for comparison chart
+            const algorithms = ['Isolation Forest', 'One-Class SVM', 'Local Outlier Factor', 'Autoencoder'];
+            const accuracyData = [0, 0, 0, 0];
+            const precisionData = [0, 0, 0, 0];
+            const recallData = [0, 0, 0, 0];
+            const f1Data = [0, 0, 0, 0];
+            const counts = [0, 0, 0, 0];
+            
+            {% for dataset_id, data in evaluations_by_dataset.items() %}
+                {% for eval in data.evaluations %}
+                    let index = -1;
+                    switch('{{ eval.algorithm }}') {
+                        case 'isolation_forest': index = 0; break;
+                        case 'one_class_svm': index = 1; break;
+                        case 'local_outlier_factor': index = 2; break;
+                        case 'auto_encoder': index = 3; break;
+                    }
+                    
+                    if (index >= 0) {
+                        accuracyData[index] += {{ eval.accuracy or 0 }};
+                        precisionData[index] += {{ eval.precision or 0 }};
+                        recallData[index] += {{ eval.recall or 0 }};
+                        f1Data[index] += {{ eval.f1_score or 0 }};
+                        counts[index]++;
+                    }
+                {% endfor %}
+            {% endfor %}
+            
+            // Calculate averages
+            for (let i = 0; i < algorithms.length; i++) {
+                if (counts[i] > 0) {
+                    accuracyData[i] /= counts[i];
+                    precisionData[i] /= counts[i];
+                    recallData[i] /= counts[i];
+                    f1Data[i] /= counts[i];
+                }
+            }
+            
+            const comparisonChart = new Chart(comparisonCtx, {
+                type: 'bar',
+                data: {
+                    labels: algorithms,
+                    datasets: [
+                        {
+                            label: 'Accuracy',
+                            data: accuracyData,
+                            backgroundColor: 'rgba(77, 166, 255, 0.7)'
+                        },
+                        {
+                            label: 'Precision',
+                            data: precisionData,
+                            backgroundColor: 'rgba(0, 204, 153, 0.7)'
+                        },
+                        {
+                            label: 'Recall',
+                            data: recallData,
+                            backgroundColor: 'rgba(255, 209, 102, 0.7)'
+                        },
+                        {
+                            label: 'F1 Score',
+                            data: f1Data,
+                            backgroundColor: 'rgba(255, 107, 107, 0.7)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Average Performance by Algorithm',
+                            color: '#ffffff',
+                            font: {
+                                size: 16
+                            }
+                        },
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#ffffff'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1e1e1e',
+                            titleColor: '#ffffff',
+                            bodyColor: '#b3b3b3',
+                            borderColor: '#333333',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: '#333333'
+                            },
+                            ticks: {
+                                color: '#ffffff'
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            grid: {
+                                color: '#333333'
+                            },
+                            ticks: {
+                                color: '#ffffff'
+                            }
+                        }
+                    }
+                }
+            });
+        {% endif %}
+    });
+</script>
+{% endblock %}

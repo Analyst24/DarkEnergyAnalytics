@@ -1,0 +1,228 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h3>Detect Energy Consumption Anomalies</h3>
+    </div>
+    <div class="card-body">
+        <p>Select a dataset and algorithm to detect energy consumption anomalies. The system will analyze patterns and identify unusual energy usage behavior.</p>
+        
+        <form method="POST" action="{{ url_for('view_anomalies') }}" class="mt-4">
+            {{ form.hidden_tag() }}
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="dataset">{{ form.dataset.label }}</label>
+                        {{ form.dataset(class="form-control", id="dataset") }}
+                        {% if form.dataset.errors %}
+                            <div class="text-danger">
+                                {% for error in form.dataset.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        {% if not form.dataset.choices %}
+                            <small class="text-warning">No datasets available. Please <a href="{{ url_for('generate_data') }}">generate sample data</a> or <a href="{{ url_for('custom_data') }}">add custom data</a> first.</small>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="algorithm">{{ form.algorithm.label }}</label>
+                        <div class="d-flex align-items-center">
+                            {{ form.algorithm(class="form-control", id="algorithm") }}
+                            <div class="tooltip ms-2">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltip-text">Different algorithms perform better with different data types</span>
+                            </div>
+                        </div>
+                        {% if form.algorithm.errors %}
+                            <div class="text-danger">
+                                {% for error in form.algorithm.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="contamination">{{ form.contamination.label }} (Optional)</label>
+                        <div class="d-flex align-items-center">
+                            {{ form.contamination(class="form-control", id="contamination", min="0.01", max="0.5", step="0.01", placeholder="Default: 0.1") }}
+                            <div class="tooltip ms-2">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltip-text">Expected percentage of anomalies in the dataset (0.01-0.5)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group mt-4">
+                {{ form.submit(class="btn btn-primary") }}
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Algorithm Information -->
+<div class="card mb-4">
+    <div class="card-header">
+        <h3>Anomaly Detection Algorithms</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="algorithm-card p-3 mb-3" style="background-color: var(--bg-tertiary); border-radius: 8px;">
+                    <h4><i class="fas fa-tree me-2 text-success"></i> Isolation Forest</h4>
+                    <p>Effectively isolates anomalies by randomly selecting features and splitting values. Works well with high-dimensional data.</p>
+                    <div class="algorithm-props">
+                        <span class="badge me-2" style="background-color: rgba(6, 214, 160, 0.2); color: var(--accent-success);">Fast</span>
+                        <span class="badge me-2" style="background-color: rgba(77, 166, 255, 0.2); color: var(--accent-primary);">General Purpose</span>
+                        <span class="badge" style="background-color: rgba(255, 209, 102, 0.2); color: var(--accent-warning);">Recommended for New Users</span>
+                    </div>
+                </div>
+                
+                <div class="algorithm-card p-3 mb-3" style="background-color: var(--bg-tertiary); border-radius: 8px;">
+                    <h4><i class="fas fa-project-diagram me-2 text-warning"></i> One-Class SVM</h4>
+                    <p>Learns a boundary that encompasses normal data points. Good for cases where normal data is well clustered.</p>
+                    <div class="algorithm-props">
+                        <span class="badge me-2" style="background-color: rgba(255, 107, 107, 0.2); color: var(--accent-danger);">Slower</span>
+                        <span class="badge" style="background-color: rgba(77, 166, 255, 0.2); color: var(--accent-primary);">Good with Clean Data</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="algorithm-card p-3 mb-3" style="background-color: var(--bg-tertiary); border-radius: 8px;">
+                    <h4><i class="fas fa-user-friends me-2 text-primary"></i> Local Outlier Factor</h4>
+                    <p>Compares the local density of a point with its neighbors. Excellent for detecting local anomalies in dense regions.</p>
+                    <div class="algorithm-props">
+                        <span class="badge me-2" style="background-color: rgba(6, 214, 160, 0.2); color: var(--accent-success);">Good with Clusters</span>
+                        <span class="badge" style="background-color: rgba(77, 166, 255, 0.2); color: var(--accent-primary);">Density-Based</span>
+                    </div>
+                </div>
+                
+                <div class="algorithm-card p-3 mb-3" style="background-color: var(--bg-tertiary); border-radius: 8px;">
+                    <h4><i class="fas fa-brain me-2 text-danger"></i> Autoencoder (Deep Learning)</h4>
+                    <p>Neural network that learns to compress and reconstruct normal data. Anomalies have high reconstruction error.</p>
+                    <div class="algorithm-props">
+                        <span class="badge me-2" style="background-color: rgba(255, 107, 107, 0.2); color: var(--accent-danger);">Resource Intensive</span>
+                        <span class="badge me-2" style="background-color: rgba(6, 214, 160, 0.2); color: var(--accent-success);">Complex Patterns</span>
+                        <span class="badge" style="background-color: rgba(255, 209, 102, 0.2); color: var(--accent-warning);">Advanced</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Datasets with Anomalies -->
+{% if datasets_with_anomalies %}
+<div class="card">
+    <div class="card-header">
+        <h3>Datasets with Detected Anomalies</h3>
+    </div>
+    <div class="card-body">
+        <div class="accordion" id="anomalyAccordion">
+            {% for item in datasets_with_anomalies %}
+                <div class="accordion-item mb-3" style="background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;">
+                    <h2 class="accordion-header" id="heading{{ item.dataset.id }}">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ item.dataset.id }}" 
+                                aria-expanded="false" aria-controls="collapse{{ item.dataset.id }}"
+                                style="background-color: var(--bg-tertiary); color: var(--text-primary); border: none;">
+                            <span>{{ item.dataset.name }}</span>
+                            <span class="ms-3 badge" style="background-color: rgba(255, 107, 107, 0.2); color: var(--accent-danger);">
+                                {{ item.count }} Anomalies
+                            </span>
+                        </button>
+                    </h2>
+                    <div id="collapse{{ item.dataset.id }}" class="accordion-collapse collapse" aria-labelledby="heading{{ item.dataset.id }}" data-bs-parent="#anomalyAccordion">
+                        <div class="accordion-body">
+                            <div class="mb-4">
+                                <h4>Energy Consumption Over Time</h4>
+                                <div class="chart-container" style="height: 300px;">
+                                    <canvas id="chart-{{ item.dataset.id }}"></canvas>
+                                </div>
+                            </div>
+                            
+                            <h4>Anomaly Details</h4>
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Timestamp</th>
+                                            <th>Energy (kWh)</th>
+                                            <th>Anomaly Score</th>
+                                            <th>Algorithm</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for anomaly in item.anomalies %}
+                                            <tr>
+                                                <td>{{ anomaly.data_point.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                                                <td>{{ anomaly.data_point.energy_consumption }}</td>
+                                                <td>{{ anomaly.anomaly_score|round(3) }}</td>
+                                                <td>{{ anomaly.algorithm }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load charts for datasets with anomalies
+        {% for item in datasets_with_anomalies %}
+            loadDatasetVisualizations({{ item.dataset.id }}, '#chart-{{ item.dataset.id }}');
+        {% endfor %}
+        
+        // Algorithm information tooltips
+        const algorithmSelect = document.getElementById('algorithm');
+        if (algorithmSelect) {
+            algorithmSelect.addEventListener('change', function() {
+                const algorithmCards = document.querySelectorAll('.algorithm-card');
+                const selectedAlgorithm = this.value;
+                
+                algorithmCards.forEach(card => {
+                    card.style.border = 'none';
+                });
+                
+                // Highlight the selected algorithm card
+                const algorithmMap = {
+                    'isolation_forest': 0,
+                    'one_class_svm': 1,
+                    'local_outlier_factor': 2,
+                    'auto_encoder': 3
+                };
+                
+                if (selectedAlgorithm in algorithmMap) {
+                    const index = algorithmMap[selectedAlgorithm];
+                    algorithmCards[index].style.border = '2px solid var(--accent-primary)';
+                }
+            });
+            
+            // Trigger change to highlight current selection
+            algorithmSelect.dispatchEvent(new Event('change'));
+        }
+    });
+</script>
+{% endblock %}

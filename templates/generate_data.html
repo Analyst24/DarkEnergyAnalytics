@@ -1,0 +1,198 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>Generate Sample Energy Consumption Data</h3>
+    </div>
+    <div class="card-body">
+        <p>Generate synthetic energy consumption data for testing anomaly detection algorithms. This tool creates realistic energy usage patterns with daily, weekly, and seasonal variations.</p>
+        
+        <form method="POST" action="{{ url_for('generate_data') }}" class="mt-4">
+            {{ form.hidden_tag() }}
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="name">{{ form.name.label }}</label>
+                        {{ form.name(class="form-control", id="name", placeholder="Enter a name for this dataset") }}
+                        {% if form.name.errors %}
+                            <div class="text-danger">
+                                {% for error in form.name.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="description">{{ form.description.label }}</label>
+                        {{ form.description(class="form-control", id="description", placeholder="Optional description for this dataset") }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="num_data_points">{{ form.num_data_points.label }}</label>
+                        <div class="d-flex align-items-center">
+                            {{ form.num_data_points(class="form-control", id="num_data_points", min="10", placeholder="e.g., 100") }}
+                            <div class="tooltip ms-2">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltip-text">Recommended: 24 points per day of data</span>
+                            </div>
+                        </div>
+                        {% if form.num_data_points.errors %}
+                            <div class="text-danger">
+                                {% for error in form.num_data_points.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="start_date">{{ form.start_date.label }}</label>
+                        {{ form.start_date(class="form-control", id="start_date", type="date") }}
+                        {% if form.start_date.errors %}
+                            <div class="text-danger">
+                                {% for error in form.start_date.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="end_date">{{ form.end_date.label }}</label>
+                        {{ form.end_date(class="form-control", id="end_date", type="date") }}
+                        {% if form.end_date.errors %}
+                            <div class="text-danger">
+                                {% for error in form.end_date.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="include_anomalies">{{ form.include_anomalies.label }}</label>
+                        {{ form.include_anomalies(class="form-control", id="include_anomalies") }}
+                        {% if form.include_anomalies.errors %}
+                            <div class="text-danger">
+                                {% for error in form.include_anomalies.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="col-md-6" id="anomaly_percentage_field">
+                    <div class="form-group">
+                        <label for="anomaly_percentage">{{ form.anomaly_percentage.label }}</label>
+                        <div class="d-flex align-items-center">
+                            {{ form.anomaly_percentage(class="form-control", id="anomaly_percentage", min="0.01", max="0.5", step="0.01", value="0.1") }}
+                            <div class="tooltip ms-2">
+                                <i class="fas fa-info-circle"></i>
+                                <span class="tooltip-text">Percentage of data points that will be anomalies (0.01-0.5)</span>
+                            </div>
+                        </div>
+                        {% if form.anomaly_percentage.errors %}
+                            <div class="text-danger">
+                                {% for error in form.anomaly_percentage.errors %}
+                                    <small>{{ error }}</small>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group mt-4">
+                {{ form.submit(class="btn btn-primary") }}
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary ms-2">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card mt-4">
+    <div class="card-header">
+        <h3>Sample Data Information</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h4 class="mb-3">Data Features</h4>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-chart-line me-2 text-primary"></i> <strong>Energy Consumption (kWh):</strong> Primary feature with daily and weekly patterns</li>
+                    <li><i class="fas fa-thermometer-half me-2 text-warning"></i> <strong>Temperature (°C):</strong> Environmental variable affecting energy usage</li>
+                    <li><i class="fas fa-tint me-2 text-info"></i> <strong>Humidity (%):</strong> Secondary environmental factor</li>
+                    <li><i class="fas fa-users me-2 text-success"></i> <strong>Occupancy:</strong> Number of occupants (for building data)</li>
+                </ul>
+            </div>
+            
+            <div class="col-md-6">
+                <h4 class="mb-3">Anomaly Types</h4>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-arrow-up me-2 text-danger"></i> <strong>Spikes:</strong> Sudden increases in energy consumption</li>
+                    <li><i class="fas fa-arrow-down me-2 text-info"></i> <strong>Drops:</strong> Unexpected decreases in energy usage</li>
+                    <li><i class="fas fa-exchange-alt me-2 text-warning"></i> <strong>Shifts:</strong> Sustained changes in consumption patterns</li>
+                </ul>
+                
+                <div class="mt-4">
+                    <p><i class="fas fa-info-circle me-2"></i> The generated data will follow realistic patterns with daily cycles, weekend variations, and seasonal changes if the date range spans multiple months.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set default dates if not already set
+        const startDateInput = document.getElementById('start_date');
+        const endDateInput = document.getElementById('end_date');
+        
+        if (!startDateInput.value) {
+            const today = new Date();
+            const oneMonthAgo = new Date();
+            oneMonthAgo.setMonth(today.getMonth() - 1);
+            
+            startDateInput.value = oneMonthAgo.toISOString().split('T')[0];
+            endDateInput.value = today.toISOString().split('T')[0];
+        }
+        
+        // Toggle anomaly percentage field visibility
+        const includeAnomaliesSelect = document.getElementById('include_anomalies');
+        const anomalyPercentageField = document.getElementById('anomaly_percentage_field');
+        
+        includeAnomaliesSelect.addEventListener('change', function() {
+            if (this.value === 'yes') {
+                anomalyPercentageField.style.display = 'block';
+            } else {
+                anomalyPercentageField.style.display = 'none';
+            }
+        });
+        
+        // Initial state
+        if (includeAnomaliesSelect.value === 'no') {
+            anomalyPercentageField.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

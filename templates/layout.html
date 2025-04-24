@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} | Energy Anomaly Detection</title>
+    
+    <!-- Stylesheets -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/moment"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment"></script>
+</head>
+<body>
+    {% if current_user.is_authenticated %}
+    <!-- Dashboard Layout (Authenticated Users) -->
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2><i class="fas fa-bolt energy-icon"></i>Energy Anomaly</h2>
+                <button class="sidebar-toggle d-md-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <nav class="sidebar-menu">
+                <a href="{{ url_for('dashboard') }}" class="menu-item {{ 'active' if request.path == url_for('dashboard') else '' }}">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{{ url_for('generate_data') }}" class="menu-item {{ 'active' if request.path == url_for('generate_data') else '' }}">
+                    <i class="fas fa-database"></i>
+                    <span>Generate Sample Data</span>
+                </a>
+                <a href="{{ url_for('custom_data') }}" class="menu-item {{ 'active' if request.path == url_for('custom_data') else '' }}">
+                    <i class="fas fa-file-upload"></i>
+                    <span>Add Custom Data</span>
+                </a>
+                <a href="{{ url_for('view_anomalies') }}" class="menu-item {{ 'active' if request.path == url_for('view_anomalies') else '' }}">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>View Anomalies</span>
+                </a>
+                <a href="{{ url_for('model_evaluation') }}" class="menu-item {{ 'active' if request.path == url_for('model_evaluation') else '' }}">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Model Evaluation</span>
+                </a>
+                <a href="{{ url_for('recommendations') }}" class="menu-item {{ 'active' if request.path == url_for('recommendations') else '' }}">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Recommendations</span>
+                </a>
+                
+                <div class="menu-divider"></div>
+                
+                <a href="{{ url_for('logout') }}" class="menu-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <p>© Opulent Chikwiramakomo</p>
+            </div>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            {{ message }}
+                            <span class="close-alert">&times;</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>{{ title }}</h1>
+                
+                <!-- Page actions if needed -->
+                {% block page_actions %}{% endblock %}
+            </div>
+            
+            <!-- Page Content -->
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    {% else %}
+    <!-- Authentication Layout (Non-Authenticated Users) -->
+    <div class="auth-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000;">
+                        {{ message }}
+                        <span class="close-alert">&times;</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block auth_content %}{% endblock %}
+    </div>
+    {% endif %}
+    
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

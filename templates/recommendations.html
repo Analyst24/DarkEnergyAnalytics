@@ -1,0 +1,214 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header">
+        <h3>Energy Efficiency Recommendations</h3>
+    </div>
+    <div class="card-body">
+        <p>Based on the anomalies detected in your energy consumption data, the system has generated the following recommendations to improve energy efficiency.</p>
+        
+        {% if not recommendations %}
+            <div class="alert alert-info mt-4">
+                <i class="fas fa-info-circle me-2"></i>
+                No recommendations available yet. Run anomaly detection on a dataset to generate recommendations.
+                <a href="{{ url_for('view_anomalies') }}" class="alert-link">Detect anomalies now</a>.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if recommendations %}
+    <!-- Recommendations Summary -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h3>Potential Savings Overview</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="stat-card text-center p-4">
+                        <i class="fas fa-lightbulb fa-3x mb-3" style="color: var(--accent-primary);"></i>
+                        <h4>Total Recommendations</h4>
+                        <div class="value">{{ recommendations|length }}</div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="stat-card text-center p-4">
+                        <i class="fas fa-percentage fa-3x mb-3" style="color: var(--accent-success);"></i>
+                        <h4>Average Potential Savings</h4>
+                        <div class="value">
+                            {% set total = 0 %}
+                            {% set count = 0 %}
+                            {% for rec in recommendations %}
+                                {% if rec.potential_savings %}
+                                    {% set total = total + rec.potential_savings %}
+                                    {% set count = count + 1 %}
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if count > 0 %}
+                                {{ "%.1f"|format((total / count) * 100) }}%
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4">
+                    <div class="stat-card text-center p-4">
+                        <i class="fas fa-calendar-check fa-3x mb-3" style="color: var(--accent-warning);"></i>
+                        <h4>Most Recent Analysis</h4>
+                        <div class="value">
+                            {% if recommendations %}
+                                {{ recommendations[0].created_at.strftime('%Y-%m-%d') }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Energy Efficiency Recommendations -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Detailed Recommendations</h3>
+        </div>
+        <div class="card-body">
+            {% for recommendation in recommendations %}
+                {% set savings = recommendation.potential_savings or 0 %}
+                {% if savings > 0.12 %}
+                    {% set impact_class = "high-impact" %}
+                    {% set impact_text = "High Impact" %}
+                {% elif savings > 0.08 %}
+                    {% set impact_class = "medium-impact" %}
+                    {% set impact_text = "Medium Impact" %}
+                {% else %}
+                    {% set impact_class = "low-impact" %}
+                    {% set impact_text = "Low Impact" %}
+                {% endif %}
+                
+                <div class="recommendation-card {{ impact_class }} p-3 mb-4" style="background-color: var(--bg-tertiary); border-radius: 8px;">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h4>
+                            {% if "night" in recommendation.recommendation_text.lower() or "after hours" in recommendation.recommendation_text.lower() %}
+                                <i class="fas fa-moon me-2 text-primary"></i>
+                            {% elif "temperature" in recommendation.recommendation_text.lower() or "hvac" in recommendation.recommendation_text.lower() %}
+                                <i class="fas fa-thermometer-half me-2 text-warning"></i>
+                            {% elif "occupancy" in recommendation.recommendation_text.lower() %}
+                                <i class="fas fa-users me-2 text-success"></i>
+                            {% elif "standby" in recommendation.recommendation_text.lower() or "shutdown" in recommendation.recommendation_text.lower() %}
+                                <i class="fas fa-power-off me-2 text-danger"></i>
+                            {% elif "schedule" in recommendation.recommendation_text.lower() or "operational" in recommendation.recommendation_text.lower() %}
+                                <i class="fas fa-calendar-alt me-2 text-primary"></i>
+                            {% elif "spike" in recommendation.recommendation_text.lower() or "equipment" in recommendation.recommendation_text.lower() %}
+                                <i class="fas fa-bolt me-2 text-danger"></i>
+                            {% else %}
+                                <i class="fas fa-lightbulb me-2 text-warning"></i>
+                            {% endif %}
+                            {{ impact_text }} Recommendation
+                        </h4>
+                        
+                        {% if recommendation.potential_savings %}
+                            <span class="savings-badge">{{ "%.1f"|format(recommendation.potential_savings * 100) }}% Savings Potential</span>
+                        {% endif %}
+                    </div>
+                    
+                    <p class="recommendation-text">{{ recommendation.recommendation_text }}</p>
+                    
+                    <div class="recommendation-meta mt-3 d-flex justify-content-between" style="color: var(--text-secondary);">
+                        <div>
+                            <small>
+                                <i class="fas fa-database me-1"></i> Dataset: 
+                                <span style="color: var(--text-primary);">{{ recommendation.dataset.name }}</span>
+                            </small>
+                        </div>
+                        <div>
+                            <small>
+                                <i class="fas fa-calendar me-1"></i> Generated: 
+                                <span style="color: var(--text-primary);">{{ recommendation.created_at.strftime('%Y-%m-%d') }}</span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Implementation Guide -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3>Implementation Guide</h3>
+        </div>
+        <div class="card-body">
+            <p>Follow these steps to implement the recommendations effectively:</p>
+            
+            <div class="implementation-steps">
+                <div class="step mb-3 p-3" style="background-color: var(--bg-tertiary); border-radius: 8px;">
+                    <h4><i class="fas fa-1 me-2" style="color: var(--accent-primary);"></i> Prioritize</h4>
+                    <p>Start with high-impact recommendations that offer the greatest energy savings potential. Focus on quick wins that can be implemented with minimal cost and disruption.</p>
+                </div>
+                
+                <div class="step mb-3 p-3" style="background-color: var(--bg-tertiary); border-radius: 8px;">
+                    <h4><i class="fas fa-2 me-2" style="color: var(--accent-primary);"></i> Measure Baseline</h4>
+                    <p>Before implementing changes, establish a baseline by measuring current energy consumption patterns. This will help you quantify improvements later.</p>
+                </div>
+                
+                <div class="step mb-3 p-3" style="background-color: var(--bg-tertiary); border-radius: 8px;">
+                    <h4><i class="fas fa-3 me-2" style="color: var(--accent-primary);"></i> Implement Changes</h4>
+                    <p>Implement the recommended changes systematically. Document what changes were made, when, and where they were applied.</p>
+                </div>
+                
+                <div class="step mb-3 p-3" style="background-color: var(--bg-tertiary); border-radius: 8px;">
+                    <h4><i class="fas fa-4 me-2" style="color: var(--accent-primary);"></i> Monitor Results</h4>
+                    <p>Continuously monitor energy consumption after implementing changes. Upload new data to the system to track improvements.</p>
+                </div>
+                
+                <div class="step p-3" style="background-color: var(--bg-tertiary); border-radius: 8px;">
+                    <h4><i class="fas fa-5 me-2" style="color: var(--accent-primary);"></i> Refine and Repeat</h4>
+                    <p>Based on monitoring results, refine your approach and implement additional recommendations. Energy efficiency is an ongoing process of continuous improvement.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate recommendations on scroll
+        const recommendations = document.querySelectorAll('.recommendation-card');
+        
+        // Simple animation for recommendations
+        recommendations.forEach((rec, index) => {
+            rec.style.opacity = '0';
+            rec.style.transform = 'translateY(20px)';
+            rec.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+            
+            setTimeout(() => {
+                rec.style.opacity = '1';
+                rec.style.transform = 'translateY(0)';
+            }, 100 * index);
+        });
+        
+        // Add hover effect
+        recommendations.forEach(rec => {
+            rec.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.01)';
+                this.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
+            });
+            
+            rec.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+                this.style.boxShadow = 'none';
+            });
+        });
+    });
+</script>
+{% endblock %}

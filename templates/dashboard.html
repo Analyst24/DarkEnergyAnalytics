@@ -1,0 +1,238 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<!-- Overview Stats -->
+<div class="stats-container">
+    <div class="stat-card">
+        <i class="fas fa-database icon"></i>
+        <div class="title">Datasets</div>
+        <div class="value">{{ datasets_count }}</div>
+        <div class="change">Your data collections</div>
+    </div>
+    
+    <div class="stat-card">
+        <i class="fas fa-exclamation-triangle icon"></i>
+        <div class="title">Anomalies</div>
+        <div class="value">{{ anomalies_count }}</div>
+        <div class="change">Detected energy irregularities</div>
+    </div>
+    
+    <div class="stat-card">
+        <i class="fas fa-lightbulb icon"></i>
+        <div class="title">Recommendations</div>
+        <div class="value">{{ recommendations_count }}</div>
+        <div class="change">Energy saving insights</div>
+    </div>
+    
+    <div class="stat-card">
+        <i class="fas fa-bolt icon"></i>
+        <div class="title">Energy Analytics</div>
+        <div class="value">Active</div>
+        <div class="change">Real-time processing</div>
+    </div>
+</div>
+
+<!-- Dashboard Overview -->
+<div class="row">
+    <!-- Welcome Message and Quick Actions -->
+    <div class="col-lg-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>Welcome to Energy Anomaly Detection System</h3>
+            </div>
+            <div class="card-body">
+                <p>This offline system helps you detect anomalies in energy consumption data using machine learning algorithms.</p>
+                
+                <div class="quick-actions mt-4">
+                    <h4>Quick Actions</h4>
+                    <div class="d-flex flex-wrap gap-2 mt-3">
+                        <a href="{{ url_for('generate_data') }}" class="btn btn-primary">
+                            <i class="fas fa-database me-2"></i>Generate Sample Data
+                        </a>
+                        <a href="{{ url_for('custom_data') }}" class="btn btn-secondary">
+                            <i class="fas fa-file-upload me-2"></i>Upload Custom Data
+                        </a>
+                        <a href="{{ url_for('view_anomalies') }}" class="btn btn-secondary">
+                            <i class="fas fa-search me-2"></i>Detect Anomalies
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Datasets -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Recent Datasets</h3>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_datasets %}
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Type</th>
+                                <th>Created</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for dataset in recent_datasets %}
+                            <tr>
+                                <td>{{ dataset.name }}</td>
+                                <td>
+                                    {% if dataset.is_sample %}
+                                    <span class="status-badge warning">Sample</span>
+                                    {% else %}
+                                    <span class="status-badge success">Custom</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ dataset.created_at.strftime('%Y-%m-%d') }}</td>
+                                <td>
+                                    <a href="{{ url_for('view_anomalies') }}" class="btn btn-sm btn-primary">Analyze</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="p-4 text-center">
+                    <p>No datasets available. Start by generating sample data or uploading your own.</p>
+                    <a href="{{ url_for('generate_data') }}" class="btn btn-primary mt-2">Generate Data</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Energy System Visual -->
+    <div class="col-lg-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>Energy System Overview</h3>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <!-- Energy System SVG Illustration -->
+                    <svg width="100%" height="250" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Smart Grid Background -->
+                        <rect x="0" y="0" width="800" height="400" fill="#121212" />
+                        <path d="M0,50 L800,50" stroke="#333" stroke-width="1" />
+                        <path d="M0,100 L800,100" stroke="#333" stroke-width="1" />
+                        <path d="M0,150 L800,150" stroke="#333" stroke-width="1" />
+                        <path d="M0,200 L800,200" stroke="#333" stroke-width="1" />
+                        <path d="M0,250 L800,250" stroke="#333" stroke-width="1" />
+                        <path d="M0,300 L800,300" stroke="#333" stroke-width="1" />
+                        <path d="M0,350 L800,350" stroke="#333" stroke-width="1" />
+                        
+                        <path d="M50,0 L50,400" stroke="#333" stroke-width="1" />
+                        <path d="M100,0 L100,400" stroke="#333" stroke-width="1" />
+                        <path d="M150,0 L150,400" stroke="#333" stroke-width="1" />
+                        <path d="M200,0 L200,400" stroke="#333" stroke-width="1" />
+                        <path d="M250,0 L250,400" stroke="#333" stroke-width="1" />
+                        <path d="M300,0 L300,400" stroke="#333" stroke-width="1" />
+                        <path d="M350,0 L350,400" stroke="#333" stroke-width="1" />
+                        <path d="M400,0 L400,400" stroke="#333" stroke-width="1" />
+                        <path d="M450,0 L450,400" stroke="#333" stroke-width="1" />
+                        <path d="M500,0 L500,400" stroke="#333" stroke-width="1" />
+                        <path d="M550,0 L550,400" stroke="#333" stroke-width="1" />
+                        <path d="M600,0 L600,400" stroke="#333" stroke-width="1" />
+                        <path d="M650,0 L650,400" stroke="#333" stroke-width="1" />
+                        <path d="M700,0 L700,400" stroke="#333" stroke-width="1" />
+                        <path d="M750,0 L750,400" stroke="#333" stroke-width="1" />
+                        
+                        <!-- Power Plant -->
+                        <g transform="translate(100, 150)">
+                            <rect x="0" y="0" width="100" height="100" rx="10" fill="#2d2d2d" stroke="#4da6ff" stroke-width="2" />
+                            <rect x="20" y="-30" width="20" height="30" fill="#2d2d2d" />
+                            <rect x="60" y="-30" width="20" height="30" fill="#2d2d2d" />
+                            <path d="M10,30 L90,30 L90,90 L10,90 Z" fill="#1e1e1e" />
+                            <circle cx="50" cy="60" r="20" fill="#4da6ff" opacity="0.7" />
+                            <text x="50" y="120" text-anchor="middle" fill="white" font-size="14">Power Plant</text>
+                        </g>
+                        
+                        <!-- Transmission Tower -->
+                        <g transform="translate(250, 120)">
+                            <line x1="25" y1="0" x2="25" y2="150" stroke="#aaa" stroke-width="3" />
+                            <line x1="0" y1="30" x2="50" y2="30" stroke="#aaa" stroke-width="3" />
+                            <line x1="10" y1="60" x2="40" y2="60" stroke="#aaa" stroke-width="3" />
+                            <line x1="15" y1="90" x2="35" y2="90" stroke="#aaa" stroke-width="3" />
+                            <path d="M5,30 L25,0 L45,30" stroke="#aaa" stroke-width="2" fill="none" />
+                            <text x="25" y="180" text-anchor="middle" fill="white" font-size="14">Transmission</text>
+                        </g>
+                        
+                        <!-- Smart Building -->
+                        <g transform="translate(400, 150)">
+                            <rect x="0" y="0" width="120" height="100" rx="5" fill="#2d2d2d" stroke="#00cc99" stroke-width="2" />
+                            <rect x="15" y="20" width="25" height="25" rx="2" fill="#1e1e1e" />
+                            <rect x="50" y="20" width="25" height="25" rx="2" fill="#1e1e1e" />
+                            <rect x="85" y="20" width="25" height="25" rx="2" fill="#1e1e1e" />
+                            <rect x="15" y="55" width="90" height="35" rx="2" fill="#1e1e1e" />
+                            <circle cx="60" cy="70" r="12" fill="#00cc99" opacity="0.7" />
+                            <text x="60" y="120" text-anchor="middle" fill="white" font-size="14">Smart Building</text>
+                        </g>
+                        
+                        <!-- Anomaly System -->
+                        <g transform="translate(600, 150)">
+                            <rect x="0" y="0" width="100" height="100" rx="10" fill="#2d2d2d" stroke="#ff6b6b" stroke-width="2" />
+                            <circle cx="50" cy="35" r="20" fill="#ff6b6b" opacity="0.7">
+                                <animate attributeName="opacity" values="0.7;0.3;0.7" dur="3s" repeatCount="indefinite" />
+                            </circle>
+                            <rect x="20" y="65" width="60" height="25" rx="5" fill="#1e1e1e" />
+                            <circle cx="30" cy="77.5" r="5" fill="#ff6b6b">
+                                <animate attributeName="fill" values="#ff6b6b;#333;#ff6b6b" dur="1.5s" repeatCount="indefinite" />
+                            </circle>
+                            <circle cx="50" cy="77.5" r="5" fill="#00cc99" />
+                            <circle cx="70" cy="77.5" r="5" fill="#4da6ff" />
+                            <text x="50" y="120" text-anchor="middle" fill="white" font-size="14">Anomaly Detection</text>
+                        </g>
+                        
+                        <!-- Connection Lines -->
+                        <line x1="200" y1="180" x2="250" y2="180" stroke="#4da6ff" stroke-width="3" />
+                        <line x1="275" y1="180" x2="400" y2="180" stroke="#4da6ff" stroke-width="3" />
+                        <line x1="520" y1="180" x2="600" y2="180" stroke="#4da6ff" stroke-width="3" />
+                        
+                        <!-- Data Flow Animation -->
+                        <circle cx="220" cy="180" r="5" fill="#4da6ff">
+                            <animate attributeName="cx" values="200;250" dur="2s" repeatCount="indefinite" />
+                        </circle>
+                        <circle cx="320" cy="180" r="5" fill="#4da6ff">
+                            <animate attributeName="cx" values="275;400" dur="3s" repeatCount="indefinite" />
+                        </circle>
+                        <circle cx="550" cy="180" r="5" fill="#4da6ff">
+                            <animate attributeName="cx" values="520;600" dur="2s" repeatCount="indefinite" />
+                        </circle>
+                        
+                        <!-- Anomaly Pulse -->
+                        <circle cx="650" cy="35" r="10" fill="#ff6b6b" opacity="0.5">
+                            <animate attributeName="r" values="10;30;10" dur="2s" repeatCount="indefinite" />
+                            <animate attributeName="opacity" values="0.5;0;0.5" dur="2s" repeatCount="indefinite" />
+                        </circle>
+                    </svg>
+                </div>
+                
+                <div class="system-info">
+                    <h4>Anomaly Detection System Features</h4>
+                    <ul>
+                        <li><i class="fas fa-check-circle text-success me-2"></i> Monitor energy consumption patterns</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i> Detect unusual patterns and outliers</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i> Generate actionable recommendations</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i> Evaluate model performance</li>
+                        <li><i class="fas fa-check-circle text-success me-2"></i> Improve energy efficiency</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Additional dashboard-specific scripts can go here
+    });
+</script>
+{% endblock %}
