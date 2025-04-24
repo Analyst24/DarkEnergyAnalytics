@@ -1,0 +1,65 @@
+Offline Anomaly Detection in Energy & Efficiency Using Machine Learning (Python-Based)
+
+I am developing an offline application titled “Anomaly Detection in Energy & Efficiency Using Machine Learning”, built using the Python programming language. The system is designed to run entirely on a local machine without requiring an internet connection.
+
+Updated Requirements & Functional Specifications
+1. Login Page (Standalone)
+The system should begin with a plain, standalone login page, separate from the main dashboard.
+
+This page should include:
+
+Login form for existing users (username and password).
+
+Signup option for new users to register.
+
+Authentication should be handled locally, using an offline database (e.g., SQLite).
+
+2. Dashboard Interface
+Once the user successfully logs in, they should be redirected to a professional dashboard.
+
+The dashboard must include:
+
+A side navigation panel for easy access to all sections.
+
+A modern and clean user interface with professional themes (e.g., sleek color palettes, modern fonts, subtle animations).
+
+Support for responsive design if needed on different screen sizes.
+
+3. Dashboard Features (Tabs/Sections)
+The dashboard should contain the following key tabs or sections:
+
+Generate Sample Data:
+
+Allow the user to automatically generate synthetic/sample energy consumption data for testing anomaly detection algorithms.
+
+Add Custom Data:
+
+Enable users to upload or manually enter their own energy usage data for analysis.
+
+View Anomalies:
+
+Display detected anomalies in energy usage through visualizations (e.g., graphs, tables, heatmaps).
+
+Model Evaluation:
+
+Show performance metrics such as accuracy, precision, recall, etc., for the models being used.
+
+Recommendations:
+
+Provide suggestions for improving energy efficiency based on the anomalies identified.
+
+Technology Stack:
+Backend: Python
+
+Framework: Flask (for routing and interface control)
+
+Database: SQLite (for local storage of users and data)
+
+Machine Learning: Scikit-learn, TensorFlow/Keras (for AutoEncoders), Pandas, NumPy
+
+Visualization: Matplotlib, Plotly, Seaborn
+
+Frontend Styling: HTML, CSS (professional templates/themes), optionally Tailwind or Bootstrap for sleek UI
+
+Copyright
+All rights to this system are reserved under the name Opulent Chikwiramakomo.
