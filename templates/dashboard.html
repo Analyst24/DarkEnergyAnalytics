@@ -1,122 +1,112 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<!-- Overview Stats -->
+<!-- Enhanced Overview Stats with Animated Icons -->
 <div class="stats-container">
-    <div class="stat-card">
-        <i class="fas fa-database icon"></i>
+    <div class="stat-card" style="border-left: 4px solid var(--accent-primary);">
+        <i class="fas fa-database icon" style="animation: pulse 2s infinite;"></i>
         <div class="title">Datasets</div>
         <div class="value">{{ datasets_count }}</div>
-        <div class="change">Your data collections</div>
+        <div class="chart-sparkline">
+            <svg width="100%" height="30" viewBox="0 0 100 30">
+                <path d="M0,15 L10,18 L20,12 L30,20 L40,15 L50,10 L60,15 L70,5 L80,12 L90,8 L100,15" stroke="var(--accent-primary)" stroke-width="2" fill="none" />
+            </svg>
+        </div>
     </div>
     
-    <div class="stat-card">
+    <div class="stat-card" style="border-left: 4px solid var(--accent-danger);">
         <i class="fas fa-exclamation-triangle icon"></i>
         <div class="title">Anomalies</div>
         <div class="value">{{ anomalies_count }}</div>
-        <div class="change">Detected energy irregularities</div>
+        <div class="chart-sparkline">
+            <svg width="100%" height="30" viewBox="0 0 100 30">
+                <path d="M0,15 L10,25 L20,5 L30,15 L40,10 L50,28 L60,12 L70,18 L80,5 L90,20 L100,15" stroke="var(--accent-danger)" stroke-width="2" fill="none" />
+            </svg>
+        </div>
     </div>
     
-    <div class="stat-card">
+    <div class="stat-card" style="border-left: 4px solid var(--accent-success);">
         <i class="fas fa-lightbulb icon"></i>
         <div class="title">Recommendations</div>
         <div class="value">{{ recommendations_count }}</div>
-        <div class="change">Energy saving insights</div>
+        <div class="chart-sparkline">
+            <svg width="100%" height="30" viewBox="0 0 100 30">
+                <path d="M0,25 L20,20 L40,15 L60,10 L80,5 L100,15" stroke="var(--accent-success)" stroke-width="2" fill="none" />
+            </svg>
+        </div>
     </div>
     
-    <div class="stat-card">
+    <div class="stat-card" style="border-left: 4px solid var(--accent-warning);">
         <i class="fas fa-bolt icon"></i>
         <div class="title">Energy Analytics</div>
         <div class="value">Active</div>
-        <div class="change">Real-time processing</div>
+        <div class="status-indicator">
+            <span class="status-dot" style="background-color: var(--accent-success);"></span>
+            <span>System Running</span>
+        </div>
     </div>
 </div>
 
-<!-- Dashboard Overview -->
-<div class="row">
-    <!-- Welcome Message and Quick Actions -->
-    <div class="col-lg-6">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h3>Welcome to Energy Anomaly Detection System</h3>
-            </div>
-            <div class="card-body">
-                <p>This offline system helps you detect anomalies in energy consumption data using machine learning algorithms.</p>
-                
-                <div class="quick-actions mt-4">
-                    <h4>Quick Actions</h4>
-                    <div class="d-flex flex-wrap gap-2 mt-3">
-                        <a href="{{ url_for('generate_data') }}" class="btn btn-primary">
-                            <i class="fas fa-database me-2"></i>Generate Sample Data
-                        </a>
-                        <a href="{{ url_for('custom_data') }}" class="btn btn-secondary">
-                            <i class="fas fa-file-upload me-2"></i>Upload Custom Data
-                        </a>
-                        <a href="{{ url_for('view_anomalies') }}" class="btn btn-secondary">
-                            <i class="fas fa-search me-2"></i>Detect Anomalies
-                        </a>
-                    </div>
-                </div>
-            </div>
+<!-- Visual Navigation Cards -->
+<div class="action-cards-container mt-4">
+    <div class="action-card" onclick="window.location.href='{{ url_for('generate_data') }}'">
+        <div class="card-icon">
+            <i class="fas fa-database"></i>
         </div>
-        
-        <!-- Recent Datasets -->
-        <div class="card">
-            <div class="card-header">
-                <h3>Recent Datasets</h3>
-            </div>
-            <div class="card-body p-0">
-                {% if recent_datasets %}
-                <div class="table-container">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Type</th>
-                                <th>Created</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for dataset in recent_datasets %}
-                            <tr>
-                                <td>{{ dataset.name }}</td>
-                                <td>
-                                    {% if dataset.is_sample %}
-                                    <span class="status-badge warning">Sample</span>
-                                    {% else %}
-                                    <span class="status-badge success">Custom</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ dataset.created_at.strftime('%Y-%m-%d') }}</td>
-                                <td>
-                                    <a href="{{ url_for('view_anomalies') }}" class="btn btn-sm btn-primary">Analyze</a>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="p-4 text-center">
-                    <p>No datasets available. Start by generating sample data or uploading your own.</p>
-                    <a href="{{ url_for('generate_data') }}" class="btn btn-primary mt-2">Generate Data</a>
-                </div>
-                {% endif %}
-            </div>
-        </div>
+        <div class="card-title">Generate Sample Data</div>
+        <div class="card-description">Create synthetic energy data with patterns and anomalies</div>
     </div>
     
-    <!-- Energy System Visual -->
-    <div class="col-lg-6">
-        <div class="card mb-4">
-            <div class="card-header">
+    <div class="action-card" onclick="window.location.href='{{ url_for('custom_data') }}'">
+        <div class="card-icon">
+            <i class="fas fa-file-upload"></i>
+        </div>
+        <div class="card-title">Add Custom Data</div>
+        <div class="card-description">Upload or manually enter your energy consumption data</div>
+    </div>
+    
+    <div class="action-card" onclick="window.location.href='{{ url_for('view_anomalies') }}'">
+        <div class="card-icon">
+            <i class="fas fa-search"></i>
+        </div>
+        <div class="card-title">Detect Anomalies</div>
+        <div class="card-description">Find unusual patterns in your energy consumption</div>
+    </div>
+    
+    <div class="action-card" onclick="window.location.href='{{ url_for('model_evaluation') }}'">
+        <div class="card-icon">
+            <i class="fas fa-chart-line"></i>
+        </div>
+        <div class="card-title">Model Evaluation</div>
+        <div class="card-description">Compare performance of anomaly detection algorithms</div>
+    </div>
+    
+    <div class="action-card" onclick="window.location.href='{{ url_for('recommendations') }}'">
+        <div class="card-icon">
+            <i class="fas fa-lightbulb"></i>
+        </div>
+        <div class="card-title">Recommendations</div>
+        <div class="card-description">Get insights to improve energy efficiency</div>
+    </div>
+</div>
+
+<!-- Dashboard Content with Enhanced Visualizations -->
+<div class="dashboard-grid mt-4">
+    <!-- Energy System Visual (Enhanced) -->
+    <div class="grid-item grid-item-wide">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <h3>Energy System Overview</h3>
+                <div class="header-actions">
+                    <button class="btn btn-sm btn-secondary" onclick="toggleFullScreen(this.parentNode.parentNode.parentNode.parentNode)">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                </div>
             </div>
             <div class="card-body">
-                <div class="text-center mb-4">
-                    <!-- Energy System SVG Illustration -->
-                    <svg width="100%" height="250" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+                <div class="text-center mb-3">
+                    <!-- Energy System SVG Illustration (Enhanced) -->
+                    <svg width="100%" height="300" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
                         <!-- Smart Grid Background -->
                         <rect x="0" y="0" width="800" height="400" fill="#121212" />
                         <path d="M0,50 L800,50" stroke="#333" stroke-width="1" />
@@ -149,7 +139,9 @@
                             <rect x="20" y="-30" width="20" height="30" fill="#2d2d2d" />
                             <rect x="60" y="-30" width="20" height="30" fill="#2d2d2d" />
                             <path d="M10,30 L90,30 L90,90 L10,90 Z" fill="#1e1e1e" />
-                            <circle cx="50" cy="60" r="20" fill="#4da6ff" opacity="0.7" />
+                            <circle cx="50" cy="60" r="20" fill="#4da6ff" opacity="0.7">
+                                <animate attributeName="opacity" values="0.7;0.9;0.7" dur="4s" repeatCount="indefinite" />
+                            </circle>
                             <text x="50" y="120" text-anchor="middle" fill="white" font-size="14">Power Plant</text>
                         </g>
                         
@@ -170,7 +162,9 @@
                             <rect x="50" y="20" width="25" height="25" rx="2" fill="#1e1e1e" />
                             <rect x="85" y="20" width="25" height="25" rx="2" fill="#1e1e1e" />
                             <rect x="15" y="55" width="90" height="35" rx="2" fill="#1e1e1e" />
-                            <circle cx="60" cy="70" r="12" fill="#00cc99" opacity="0.7" />
+                            <circle cx="60" cy="70" r="12" fill="#00cc99" opacity="0.7">
+                                <animate attributeName="r" values="12;14;12" dur="5s" repeatCount="indefinite" />
+                            </circle>
                             <text x="60" y="120" text-anchor="middle" fill="white" font-size="14">Smart Building</text>
                         </g>
                         
@@ -212,16 +206,72 @@
                         </circle>
                     </svg>
                 </div>
-                
-                <div class="system-info">
-                    <h4>Anomaly Detection System Features</h4>
-                    <ul>
-                        <li><i class="fas fa-check-circle text-success me-2"></i> Monitor energy consumption patterns</li>
-                        <li><i class="fas fa-check-circle text-success me-2"></i> Detect unusual patterns and outliers</li>
-                        <li><i class="fas fa-check-circle text-success me-2"></i> Generate actionable recommendations</li>
-                        <li><i class="fas fa-check-circle text-success me-2"></i> Evaluate model performance</li>
-                        <li><i class="fas fa-check-circle text-success me-2"></i> Improve energy efficiency</li>
-                    </ul>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Datasets with Visual Indicators -->
+    <div class="grid-item">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3>Recent Datasets</h3>
+                <div class="data-count"><span class="badge" style="background-color: var(--accent-primary);">{{ datasets_count }}</span></div>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_datasets %}
+                <div class="dataset-list">
+                    {% for dataset in recent_datasets %}
+                    <div class="dataset-item">
+                        <div class="dataset-icon">
+                            {% if dataset.is_sample %}
+                            <i class="fas fa-flask" style="color: var(--accent-warning);"></i>
+                            {% else %}
+                            <i class="fas fa-file-alt" style="color: var(--accent-success);"></i>
+                            {% endif %}
+                        </div>
+                        <div class="dataset-info">
+                            <div class="dataset-name">{{ dataset.name }}</div>
+                            <div class="dataset-meta">
+                                <span class="dataset-date">{{ dataset.created_at.strftime('%Y-%m-%d') }}</span>
+                                <span class="dataset-type">
+                                    {% if dataset.is_sample %}
+                                    <span class="status-badge warning">Sample</span>
+                                    {% else %}
+                                    <span class="status-badge success">Custom</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="dataset-action">
+                            <a href="{{ url_for('view_anomalies') }}" class="btn btn-sm btn-primary">Analyze</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="p-4 text-center empty-state">
+                    <i class="fas fa-database fa-3x mb-3" style="color: var(--accent-secondary); opacity: 0.5;"></i>
+                    <p>No datasets available. Start by generating sample data or uploading your own.</p>
+                    <a href="{{ url_for('generate_data') }}" class="btn btn-primary mt-2">Generate Data</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Energy Usage Patterns (Sample Visualization) -->
+    <div class="grid-item">
+        <div class="card h-100">
+            <div class="card-header">
+                <h3>Energy Consumption Patterns</h3>
+            </div>
+            <div class="card-body">
+                <div id="energy-chart-container" class="chart-placeholder">
+                    <canvas id="energyPatternChart" height="250"></canvas>
+                    <div class="chart-overlay" id="energy-chart-overlay">
+                        <i class="fas fa-chart-line fa-3x"></i>
+                        <p>Select a dataset to visualize energy patterns</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -232,7 +282,120 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Additional dashboard-specific scripts can go here
+        // Animation for stat cards
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach((card, index) => {
+            setTimeout(() => {
+                card.classList.add('animated');
+            }, 100 * index);
+        });
+        
+        // Generate sample energy consumption chart
+        const energyChartCtx = document.getElementById('energyPatternChart');
+        if (energyChartCtx) {
+            // Sample data for demonstration purposes
+            const labels = Array.from({length: 24}, (_, i) => `${i}:00`);
+            const data = {
+                labels: labels,
+                datasets: [{
+                    label: 'Normal Usage',
+                    data: [5, 4, 3, 2, 2, 3, 5, 8, 12, 15, 16, 17, 18, 17, 15, 14, 16, 18, 15, 13, 10, 8, 7, 6],
+                    borderColor: '#4da6ff',
+                    backgroundColor: 'rgba(77, 166, 255, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true
+                }, {
+                    label: 'Anomalies',
+                    data: [null, null, null, null, null, null, null, null, null, null, null, null, null, null, 25, null, null, null, null, null, null, null, null, null],
+                    borderColor: '#ff6b6b',
+                    backgroundColor: 'rgba(255, 107, 107, 0.8)',
+                    borderWidth: 0,
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            };
+            
+            // Hide chart overlay since we're showing sample data
+            document.getElementById('energy-chart-overlay').style.display = 'none';
+            
+            // Create chart
+            new Chart(energyChartCtx, {
+                type: 'line',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#ffffff',
+                                font: {
+                                    family: 'Roboto, sans-serif'
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: '#1e1e1e',
+                            titleColor: '#ffffff',
+                            bodyColor: '#b3b3b3',
+                            borderColor: '#333333',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: 'rgba(51, 51, 51, 0.5)'
+                            },
+                            ticks: {
+                                color: '#b3b3b3'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Hour of Day',
+                                color: '#ffffff'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(51, 51, 51, 0.5)'
+                            },
+                            ticks: {
+                                color: '#b3b3b3'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Energy Consumption (kWh)',
+                                color: '#ffffff'
+                            }
+                        }
+                    }
+                }
+            });
+        }
     });
+    
+    // Toggle fullscreen for visualization cards
+    function toggleFullScreen(element) {
+        if (!document.fullscreenElement) {
+            if (element.requestFullscreen) {
+                element.requestFullscreen();
+            } else if (element.webkitRequestFullscreen) {
+                element.webkitRequestFullscreen();
+            } else if (element.msRequestFullscreen) {
+                element.msRequestFullscreen();
+            }
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+        }
+    }
 </script>
 {% endblock %}
