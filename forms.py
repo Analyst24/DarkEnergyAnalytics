@@ -59,8 +59,7 @@ class AnomalyDetectionForm(FlaskForm):
     dataset = SelectField('Select Dataset', coerce=int, validators=[DataRequired()])
     algorithm = SelectField('Detection Algorithm', choices=[
         ('isolation_forest', 'Isolation Forest'),
-        ('one_class_svm', 'One-Class SVM'),
-        ('local_outlier_factor', 'Local Outlier Factor'),
+        ('kmeans_clustering', 'K-means Clustering'),
         ('auto_encoder', 'Autoencoder (Deep Learning)'),
     ], default='isolation_forest')
     contamination = FloatField('Contamination Factor (0.01-0.5)', validators=[Optional()], default=0.1)

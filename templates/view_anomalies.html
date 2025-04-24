@@ -79,7 +79,7 @@
     </div>
     <div class="card-body">
         <div class="row">
-            <div class="col-lg-6">
+            <div class="col-lg-4">
                 <div class="algorithm-card p-3 mb-3" style="background-color: var(--bg-tertiary); border-radius: 8px;">
                     <h4><i class="fas fa-tree me-2 text-success"></i> Isolation Forest</h4>
                     <p>Effectively isolates anomalies by randomly selecting features and splitting values. Works well with high-dimensional data.</p>
@@ -89,27 +89,21 @@
                         <span class="badge" style="background-color: rgba(255, 209, 102, 0.2); color: var(--accent-warning);">Recommended for New Users</span>
                     </div>
                 </div>
-                
+            </div>
+            
+            <div class="col-lg-4">
                 <div class="algorithm-card p-3 mb-3" style="background-color: var(--bg-tertiary); border-radius: 8px;">
-                    <h4><i class="fas fa-project-diagram me-2 text-warning"></i> One-Class SVM</h4>
-                    <p>Learns a boundary that encompasses normal data points. Good for cases where normal data is well clustered.</p>
+                    <h4><i class="fas fa-object-group me-2 text-warning"></i> K-means Clustering</h4>
+                    <p>Identifies anomalies by measuring distance from cluster centers. Points far from their cluster center are potential anomalies.</p>
                     <div class="algorithm-props">
-                        <span class="badge me-2" style="background-color: rgba(255, 107, 107, 0.2); color: var(--accent-danger);">Slower</span>
-                        <span class="badge" style="background-color: rgba(77, 166, 255, 0.2); color: var(--accent-primary);">Good with Clean Data</span>
+                        <span class="badge me-2" style="background-color: rgba(6, 214, 160, 0.2); color: var(--accent-success);">Fast</span>
+                        <span class="badge me-2" style="background-color: rgba(77, 166, 255, 0.2); color: var(--accent-primary);">Cluster-Based</span>
+                        <span class="badge" style="background-color: rgba(255, 209, 102, 0.2); color: var(--accent-warning);">Good with Grouped Data</span>
                     </div>
                 </div>
             </div>
             
-            <div class="col-lg-6">
-                <div class="algorithm-card p-3 mb-3" style="background-color: var(--bg-tertiary); border-radius: 8px;">
-                    <h4><i class="fas fa-user-friends me-2 text-primary"></i> Local Outlier Factor</h4>
-                    <p>Compares the local density of a point with its neighbors. Excellent for detecting local anomalies in dense regions.</p>
-                    <div class="algorithm-props">
-                        <span class="badge me-2" style="background-color: rgba(6, 214, 160, 0.2); color: var(--accent-success);">Good with Clusters</span>
-                        <span class="badge" style="background-color: rgba(77, 166, 255, 0.2); color: var(--accent-primary);">Density-Based</span>
-                    </div>
-                </div>
-                
+            <div class="col-lg-4">
                 <div class="algorithm-card p-3 mb-3" style="background-color: var(--bg-tertiary); border-radius: 8px;">
                     <h4><i class="fas fa-brain me-2 text-danger"></i> Autoencoder (Deep Learning)</h4>
                     <p>Neural network that learns to compress and reconstruct normal data. Anomalies have high reconstruction error.</p>
@@ -209,9 +203,8 @@
                 // Highlight the selected algorithm card
                 const algorithmMap = {
                     'isolation_forest': 0,
-                    'one_class_svm': 1,
-                    'local_outlier_factor': 2,
-                    'auto_encoder': 3
+                    'kmeans_clustering': 1,
+                    'auto_encoder': 2
                 };
                 
                 if (selectedAlgorithm in algorithmMap) {

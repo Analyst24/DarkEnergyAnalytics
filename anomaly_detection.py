@@ -64,25 +64,31 @@ def detect_anomalies(dataset, algorithm, contamination=0.1):
             # Invert scores so that higher = more anomalous
             anomaly_scores = [1 - (score + 0.5) for score in anomaly_scores]
             
-        elif algorithm == 'one_class_svm':
-            model = OneClassSVM(nu=contamination, gamma='auto')
-            # 1 for normal, -1 for anomalies
-            predictions = model.fit_predict(X_scaled)
-            anomaly_labels = [1 if p == -1 else 0 for p in predictions]
-            # Calculate distance from hyperplane as anomaly score
-            anomaly_scores = model.decision_function(X_scaled)
-            # Normalize to 0-1 range
-            anomaly_scores = (anomaly_scores - min(anomaly_scores)) / (max(anomaly_scores) - min(anomaly_scores))
+        elif algorithm == 'kmeans_clustering':
+            from sklearn.cluster import KMeans
             
-        elif algorithm == 'local_outlier_factor':
-            model = LocalOutlierFactor(n_neighbors=20, contamination=contamination)
-            # 1 for normal, -1 for anomalies
-            predictions = model.fit_predict(X_scaled)
-            anomaly_labels = [1 if p == -1 else 0 for p in predictions]
-            # Get negative outlier factor as anomaly score
-            anomaly_scores = model.negative_outlier_factor_
-            # Normalize to 0-1 range
-            anomaly_scores = (anomaly_scores - min(anomaly_scores)) / (max(anomaly_scores) - min(anomaly_scores))
+            # Determine optimal number of clusters (simplified approach)
+            n_clusters = max(2, min(10, int(len(X_scaled) / 20)))
+            
+            # Apply K-means clustering
+            kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+            cluster_labels = kmeans.fit_predict(X_scaled)
+            
+            # Calculate distance to cluster center for each point
+            distances = np.zeros(len(X_scaled))
+            for i, point in enumerate(X_scaled):
+                cluster_center = kmeans.cluster_centers_[cluster_labels[i]]
+                distances[i] = np.linalg.norm(point - cluster_center)
+            
+            # Identify anomalies based on distance to cluster center
+            threshold = np.percentile(distances, 100 * (1 - contamination))
+            anomaly_labels = [1 if dist > threshold else 0 for dist in distances]
+            
+            # Normalize distances to get anomaly scores (0-1 range)
+            if max(distances) > min(distances):
+                anomaly_scores = (distances - min(distances)) / (max(distances) - min(distances))
+            else:
+                anomaly_scores = np.zeros(len(distances))
             
         elif algorithm == 'auto_encoder':
             # Import tensorflow only if needed to avoid dependency issues
@@ -96,6 +102,7 @@ def detect_anomalies(dataset, algorithm, contamination=0.1):
                 model = Sequential([
                     Dense(input_dim, activation='relu', input_shape=(input_dim,)),
                     Dense(max(int(input_dim/2), 1), activation='relu'),
+                    Dense(max(int(input_dim/4), 1), activation='relu'),
                     Dense(max(int(input_dim/2), 1), activation='relu'),
                     Dense(input_dim, activation='sigmoid')
                 ])
@@ -108,7 +115,10 @@ def detect_anomalies(dataset, algorithm, contamination=0.1):
                 reconstruction_errors = np.mean(np.power(X_scaled - reconstructions, 2), axis=1)
                 
                 # Normalize to 0-1 range
-                anomaly_scores = (reconstruction_errors - min(reconstruction_errors)) / (max(reconstruction_errors) - min(reconstruction_errors))
+                if max(reconstruction_errors) > min(reconstruction_errors):
+                    anomaly_scores = (reconstruction_errors - min(reconstruction_errors)) / (max(reconstruction_errors) - min(reconstruction_errors))
+                else:
+                    anomaly_scores = np.zeros(len(reconstruction_errors))
                 
                 # Determine anomalies based on reconstruction error threshold
                 threshold = np.percentile(anomaly_scores, 100 * (1 - contamination))
