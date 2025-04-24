@@ -10,6 +10,78 @@
         <p>Login to access your dashboard</p>
     </div>
     
+    <div class="login-image">
+        <svg width="100%" height="150" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+            <!-- Energy Anomaly Detection Illustration -->
+            <rect x="0" y="0" width="400" height="200" fill="none" />
+            
+            <!-- Power Grid Background -->
+            <path d="M0,100 L400,100" stroke="#333" stroke-width="1" stroke-dasharray="5,5" />
+            <path d="M0,150 L400,150" stroke="#333" stroke-width="1" stroke-dasharray="5,5" />
+            <path d="M0,50 L400,50" stroke="#333" stroke-width="1" stroke-dasharray="5,5" />
+            
+            <!-- Power Plant -->
+            <g transform="translate(50, 110)">
+                <rect x="0" y="0" width="50" height="50" rx="5" fill="#2d2d2d" stroke="#4da6ff" stroke-width="1.5" />
+                <rect x="10" y="-15" width="10" height="15" fill="#2d2d2d" />
+                <rect x="30" y="-15" width="10" height="15" fill="#2d2d2d" />
+                <path d="M5,15 L45,15 L45,45 L5,45 Z" fill="#1e1e1e" />
+                <circle cx="25" cy="30" r="10" fill="#4da6ff" opacity="0.7">
+                    <animate attributeName="opacity" values="0.7;0.9;0.7" dur="4s" repeatCount="indefinite" />
+                </circle>
+            </g>
+            
+            <!-- Power Lines -->
+            <path d="M100,125 L180,125" stroke="#4da6ff" stroke-width="2" />
+            <circle cx="140" cy="125" r="3" fill="#4da6ff">
+                <animate attributeName="cx" values="100;180" dur="2s" repeatCount="indefinite" />
+            </circle>
+            
+            <!-- Smart Building -->
+            <g transform="translate(180, 100)">
+                <rect x="0" y="0" width="60" height="60" rx="3" fill="#2d2d2d" stroke="#00cc99" stroke-width="1.5" />
+                <rect x="10" y="10" width="12" height="12" rx="1" fill="#1e1e1e" />
+                <rect x="24" y="10" width="12" height="12" rx="1" fill="#1e1e1e" />
+                <rect x="38" y="10" width="12" height="12" rx="1" fill="#1e1e1e" />
+                <rect x="10" y="30" width="40" height="20" rx="1" fill="#1e1e1e" />
+                <circle cx="30" cy="40" r="6" fill="#00cc99" opacity="0.7">
+                    <animate attributeName="r" values="6;7;6" dur="5s" repeatCount="indefinite" />
+                </circle>
+            </g>
+            
+            <!-- Power Lines -->
+            <path d="M240,125 L310,125" stroke="#4da6ff" stroke-width="2" />
+            <circle cx="270" cy="125" r="3" fill="#4da6ff">
+                <animate attributeName="cx" values="240;310" dur="3s" repeatCount="indefinite" />
+            </circle>
+            
+            <!-- Anomaly Detection System -->
+            <g transform="translate(310, 100)">
+                <rect x="0" y="0" width="50" height="50" rx="5" fill="#2d2d2d" stroke="#ff6b6b" stroke-width="1.5" />
+                <circle cx="25" cy="20" r="10" fill="#ff6b6b" opacity="0.6">
+                    <animate attributeName="opacity" values="0.6;0.3;0.6" dur="2.5s" repeatCount="indefinite" />
+                </circle>
+                <rect x="12.5" y="35" width="25" height="10" rx="2" fill="#1e1e1e" />
+                <circle cx="18" cy="40" r="2.5" fill="#ff6b6b">
+                    <animate attributeName="fill" values="#ff6b6b;#333;#ff6b6b" dur="1.5s" repeatCount="indefinite" />
+                </circle>
+                <circle cx="25" cy="40" r="2.5" fill="#00cc99" />
+                <circle cx="32" cy="40" r="2.5" fill="#4da6ff" />
+                
+                <!-- Anomaly Pulse Effect -->
+                <circle cx="25" cy="20" r="5" fill="#ff6b6b" opacity="0.4">
+                    <animate attributeName="r" values="5;20;5" dur="2s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0.4;0;0.4" dur="2s" repeatCount="indefinite" />
+                </circle>
+            </g>
+            
+            <!-- Data Flow Lines -->
+            <path d="M25,80 L375,40" stroke="#333" stroke-width="0.5" stroke-dasharray="2,2" />
+            <path d="M25,60 L375,60" stroke="#333" stroke-width="0.5" stroke-dasharray="2,2" />
+            <path d="M25,40 L375,80" stroke="#333" stroke-width="0.5" stroke-dasharray="2,2" />
+        </svg>
+    </div>
+    
     <form class="auth-form" method="POST" action="{{ url_for('login') }}">
         {{ form.hidden_tag() }}
         

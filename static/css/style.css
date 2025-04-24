@@ -50,20 +50,39 @@ h1, h2, h3, h4, h5, h6 {
     align-items: center;
     height: 100vh;
     background-color: var(--bg-primary);
+    background-image: radial-gradient(circle at center, rgba(77, 166, 255, 0.05) 0%, rgba(18, 18, 18, 0.8) 70%);
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='800' viewBox='0 0 800 800'%3E%3Cg fill='none' stroke='%23333' stroke-width='1'%3E%3Cpath d='M0,50 L800,50' /%3E%3Cpath d='M0,150 L800,150' /%3E%3Cpath d='M0,250 L800,250' /%3E%3Cpath d='M0,350 L800,350' /%3E%3Cpath d='M0,450 L800,450' /%3E%3Cpath d='M0,550 L800,550' /%3E%3Cpath d='M0,650 L800,650' /%3E%3Cpath d='M0,750 L800,750' /%3E%3Cpath d='M50,0 L50,800' /%3E%3Cpath d='M150,0 L150,800' /%3E%3Cpath d='M250,0 L250,800' /%3E%3Cpath d='M350,0 L350,800' /%3E%3Cpath d='M450,0 L450,800' /%3E%3Cpath d='M550,0 L550,800' /%3E%3Cpath d='M650,0 L650,800' /%3E%3Cpath d='M750,0 L750,800' /%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.15;
+    z-index: 0;
 }
 
 .auth-card {
     background-color: var(--bg-secondary);
-    border-radius: 8px;
-    box-shadow: 0 4px 15px var(--shadow-color);
-    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px var(--shadow-color);
+    padding: 35px;
     width: 400px;
     max-width: 90%;
+    position: relative;
+    z-index: 1;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(77, 166, 255, 0.1);
 }
 
 .auth-header {
     text-align: center;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
 }
 
 .auth-header h1 {
@@ -73,7 +92,18 @@ h1, h2, h3, h4, h5, h6 {
 
 .auth-header p {
     color: var(--text-secondary);
-    margin-top: 0;
+    margin-top: 5px;
+}
+
+.login-image {
+    margin: 15px auto 25px;
+    max-width: 200px;
+    position: relative;
+}
+
+.auth-card .logo {
+    margin-bottom: 20px;
+    position: relative;
 }
 
 .auth-form .form-group {
